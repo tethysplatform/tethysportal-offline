@@ -1,0 +1,1 @@
+A self-contained Docker image for running Tethys in offline, air-gapped environments.
