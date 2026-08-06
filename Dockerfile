@@ -219,7 +219,7 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # Install Tethys Platform
 RUN pip install --no-deps -e .
 RUN tethys gen portal_config
-RUN tethys gen package_json
+RUN tethys gen package_json && chown -R www: ${TETHYS_HOME}/tethys/tethys_portal/static/node_modules
 
 # Install channel-redis
 RUN micromamba install -c conda-forge --yes channels_redis
