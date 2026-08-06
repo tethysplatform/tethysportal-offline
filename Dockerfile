@@ -1,19 +1,4 @@
-###########################
-# package_json Build Step #
-###########################
-FROM mambaorg/micromamba:debian13-slim AS gen-package-json
-
-RUN micromamba install -y -c conda-forge -n base nodejs && \
-    micromamba install -y -c conda-forge -n base tethys-platform
-
-ARG MAMBA_DOCKERFILE_ACTIVATE=1
-RUN tethys gen package_json && \
-    cp -r "$(python -c 'import tethys_portal, pathlib; print(pathlib.Path(tethys_portal.__file__).parent / "static" / "node_modules")')" /tmp/node_modules
-
-#####################
-# Tethys Build Step #
-#####################
-FROM mambaorg/micromamba:debian13-slim AS tethys
+FROM mambaorg/micromamba:debian13-slim
 
 ###################
 # BUILD ARGUMENTS #
@@ -223,7 +208,6 @@ COPY --chown=www:www ./tethys/README.md ${TETHYS_HOME}/tethys/
 COPY --chown=www:www ./tethys/LICENSE ${TETHYS_HOME}/tethys/
 COPY --chown=www:www ./tethys/*.cfg ${TETHYS_HOME}/tethys/
 COPY --chown=www:www .git/modules/tethys ${TETHYS_HOME}/tethys/.git/
-COPY --from=gen-package-json --chown=www:www /tmp/node_modules ${TETHYS_HOME}/tethys/tethys_portal/static/node_modules
 RUN git config --file ${TETHYS_HOME}/tethys/.git/config --unset core.worktree || true
 
 # Mark repo as safe for git (needed for vcs-based versioning during build)
@@ -234,7 +218,9 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # Install Tethys Platform
 RUN pip install --no-deps -e .
+RUN micromamba install -y -c conda-forge -n base nodejs && micromamba clean --all --yes
 RUN tethys gen portal_config
+RUN tethys gen package_json
 
 # Install channel-redis
 RUN micromamba install -c conda-forge --yes channels_redis
