@@ -218,7 +218,6 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 
 # Install Tethys Platform
 RUN pip install --no-deps -e .
-RUN micromamba install -y -c conda-forge -n base nodejs && micromamba clean --all --yes
 RUN tethys gen portal_config
 RUN tethys gen package_json
 
