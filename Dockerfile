@@ -8,8 +8,9 @@ ARG MICRO_TETHYS=false
 ARG DJANGO_VERSION=4.2.*
 ARG DJANGO_CHANNELS_VERSION
 ARG DAPHNE_VERSION
+ARG NODEJS_VERSION=22.*
 
-RUN echo "Build Options: Python ${PYTHON_VERSION}, Django ${DJANGO_VERSION}, Daphne ${DAPHNE_VERSION}, Django Channels ${DJANGO_CHANNELS_VERSION}, Micro Tethys ${MICRO_TETHYS}"
+RUN echo "Build Options: Python ${PYTHON_VERSION}, Django ${DJANGO_VERSION}, Daphne ${DAPHNE_VERSION}, Django Channels ${DJANGO_CHANNELS_VERSION}, Micro Tethys ${MICRO_TETHYS}, Node.js ${NODEJS_VERSION}"
 
 ###############
 # ENVIRONMENT #
@@ -174,7 +175,7 @@ RUN if [ "${MICRO_TETHYS}" = "true" ]; then \
       rm -rf micro_environment.yml; \
     fi
 
-RUN micromamba install -y -n tethys -c conda-forge nodejs && micromamba clean --all --yes
+RUN micromamba install -y -n tethys -c conda-forge nodejs="${NODEJS_VERSION}" && micromamba clean --all --yes
 
 ###########
 # INSTALL #
