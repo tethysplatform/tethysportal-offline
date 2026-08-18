@@ -220,6 +220,7 @@ ARG MAMBA_DOCKERFILE_ACTIVATE=1
 # Install Tethys Platform
 RUN pip install --no-deps -e .
 RUN tethys gen portal_config
+RUN tethys settings --set TETHYS_PORTAL_CONFIG.STATICFILES_USE_NPM true
 RUN tethys gen package_json && chown -R www: ${TETHYS_HOME}/tethys/tethys_portal/static/node_modules
 
 # Install channel-redis
@@ -242,10 +243,10 @@ EXPOSE 80
 ###############*
 # COPY IN SALT #
 ###############*
-COPY docker/salt/ /srv/salt/
-COPY docker/run.sh ${TETHYS_HOME}/
-COPY docker/liveness-probe.sh ${TETHYS_HOME}/
-COPY docker/build-checks.sh ${TETHYS_HOME}/
+COPY tethys/docker/salt/ /srv/salt/
+COPY tethys/docker/run.sh ${TETHYS_HOME}/
+COPY tethys/docker/liveness-probe.sh ${TETHYS_HOME}/
+COPY tethys/docker/build-checks.sh ${TETHYS_HOME}/
 
 # Run build.sh to verify Django and Python versions
 RUN bash ${TETHYS_HOME}/build-checks.sh
