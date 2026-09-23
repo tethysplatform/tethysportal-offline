@@ -1,0 +1,29 @@
+# Limitations
+
+The Tethys Portal Offline image supports classic Tethys apps built with the standard
+template, gizmo, and `MapLayout` patterns. There is one category of app that is **not** supported
+in an offline air-gapped environment.
+
+## Component (ReactPy) Apps
+
+Tethys apps built with the component app system (ReactPy) are **not supported** in offline
+air-gapped environments.
+
+Unlike classic apps, component apps load their front-end libraries (React, and libraries such as
+Mantine, MapLibre, and OpenLayers) as ES modules from external CDNs at runtime using an
+[import map](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/script/type/importmap).
+These modules are fetched directly by the browser from the public internet and are not served
+through Tethys' static file mechanism, so they cannot be resolved when the environment is
+air-gapped.
+
+:::warning
+
+If your app is a component (ReactPy) app, it will not function correctly in an offline air-gapped
+environment. Its libraries will fail to load because the browser cannot reach the CDNs that host them.
+
+:::
+
+If you need your app to run in an offline air-gapped environment, build it as a classic Tethys app
+using templates, gizmos, and `MapLayout`, and declare any third party dependencies as described in the
+[Declaring Third Party Dependencies](./developing-apps-for-offline-use/declaring-third-party-dependencies)
+section.

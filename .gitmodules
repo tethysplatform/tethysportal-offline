@@ -1,0 +1,3 @@
+[submodule "tethys"]
+	path = tethys
+	url = https://github.com/tethysplatform/tethys.git

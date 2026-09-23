@@ -1,0 +1,44 @@
+# Deploying the Offline Tethys image
+
+Using the `tethysportal-offline` docker image as your base image will configure your
+deployed Tethys environment to work properly when your environment is air-gapped.
+
+Aside from the normal Tethys environment setup operations, the `tethysportal-offline` docker image
+performs the following three additional key setup configurations for your deployed environment:
+
+1. Set the Tethys Portal setting [TETHYS_PORTAL_CONFIG.STATICFILES_USE_NPM](https://docs.tethysplatform.org/en/stable/tethys_portal/configuration.html#tethys-portal-config:~:text=tethys/media/.-,STATICFILES_USE_NPM,-serves%20JavaScript%20dependencies) to `true`
+2. Install nodejs in the environment
+3. Generate `package_json` and install the necessary JS dependencies using `npm install`
+
+These three steps setup your environment to serve static files through Tethys. 
+This includes both the static files the Tethys portal relies on, and the static files for your apps.
+Hard coded links to CDNs aren't covered by this, and should be updated as described in the [Template Tags](./developing-apps-for-offline-use/template-tags) section.
+These steps also ensure the npm dependencies in your `install.yml` files for your apps will be installed
+and served from Tethys.
+
+:::warning
+
+The `TETHYS_PORTAL_CONFIG.STATICFILES_USE_NPM` setting must remain set to `true` for static file
+serving to work properly during runtime. You should avoid altering this setting to ensure you don't run into any issues
+
+:::
+
+## Using `tethysportal-offline` as a Base Image
+
+An example is given below on how to use the `tethysportal-offline` image as a base image.
+
+```dockerfile title="Dockerfile"
+FROM aquaveollc/tethysportal-offline:1.0.0-ty4.5.3-py3.12-dj5.2-njs22.23.2
+
+# The rest of your Dockerfile (Add files, install Tethys apps, etc.)
+```
+
+From the deployment side of things, this is all that is needed from you.
+
+The tethysportal-offline image can be found on [DockerHub](https://hub.docker.com/u/aquaveollc) where you
+will find several different variations of the image. Which image you specify determines which version of
+Tethys, Python, Django, and Nodejs your deployment will use. The image tag uses the following format:
+
+`tethysportal-offline:<image_version>-ty<tethys_version>-py<python_version>-dj<django_version>-njs<nodejs_version>`
+
+Check [DockerHub](https://hub.docker.com/u/aquaveollc) for the different combinations available.
