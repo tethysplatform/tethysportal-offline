@@ -1,0 +1,24 @@
+---
+slug: /
+---
+
+# Introduction
+
+Tethys Portal Offline is a self-contained Docker image for running [Tethys](https://docs.tethysplatform.org/en/stable/) in
+[offline, air-gapped environments](https://en.wikipedia.org/wiki/Air_gap_(networking)).
+It is intended to be used as a base image for your Tethys docker deployments. This documentation will give you
+the understanding you need in order to use the Tethys Portal Offline docker image, and how your Tethys apps can
+be updated to seamlessly work in both online and air-gapped environments.
+
+:::info
+
+An offline air-gapped environment in this context is an environment that is isolated from the public internet
+
+:::
+
+:::warning
+
+Using versions of Tethys before _ in an air-gapped environment might result in missing static files
+in your Tethys Portal and apps
+
+:::

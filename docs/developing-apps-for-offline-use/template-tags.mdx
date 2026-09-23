@@ -1,0 +1,150 @@
+# Template Tags
+
+It is common in Tethys apps to use `<script>` and `<link>` HTML tags with a CDN to use an external library
+or stylesheet in your app. Using the `<script>` and `<link>` tags with CDNs won't work in an offline air-gapped environment.
+In order to use these resources we must first install them as static dependencies then update our tags to point to the static location.
+Tethys provides Django template tags that you can use in place of `<script>` and `<link>` tags that will work in both online and offline air-gapped environments.
+
+In order to use these resources in offline air-gapped environments, we must do the following steps:
+
+1. Add these resources to our app's `install.yml` as described in the [Declaring Third Party Dependencies](./declaring-third-party-dependencies) section
+2. Replace the `<script>` and `<link>` tags in the template files of our app with the Tethys provided Django template tags
+
+The following sections show how to update the `<script>` and `<link>` tags in your apps so the external resources can be used in both online and offline air-gapped environments.
+
+## `dependency_script` Tag
+
+The `{% dependency_script %}` tag is provided to be used in place of `<script>` HTML tags and ensures the linked dependency works in both online and offline air-gapped environments.
+
+The `{% dependency_script %}` tag has the following structure:
+
+```django
+{% dependency_script <cdn_url> <local_path> %}
+```
+
+1. `cdn_url` - The url to the resource. The same URL used in the `<script>` HTML tag
+
+2. `local_path (optional)` - The local path to the static resource.
+
+The `local_path` argument is optional, and is only necessary when the path to the static resource cannot be automatically derived.
+The path to the resource can be automatically derived when the CDN url used is either a **jsDelivr** or **unpkg** url. Otherwise,
+the `local_path` argument is required, and the tag will fallback to the given path.
+
+The following examples show different ways that the `{% dependency_script %}` tag can be used to
+replace the `<script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>` HTML tag
+
+First, we must import tethys to use the `{% dependency_script %}` tag:
+
+```django
+{% load tethys %}
+```
+
+**1. jsDelivr URL — local path derived automatically (the recommended form)**
+```django
+{% dependency_script "https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" %}
+```
+- **Online:** `https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js`
+- **Offline:** `/static/my_app/node_modules/papaparse/papaparse.min.js` (derived from the URL — no `local_path` needed)
+
+
+**2. unpkg URL — also derived automatically**
+```django
+{% dependency_script "https://unpkg.com/papaparse@5.4.1/papaparse.min.js" %}
+```
+- **Online:** `https://unpkg.com/papaparse@5.4.1/papaparse.min.js`
+- **Offline:** `/static/my_app/node_modules/papaparse/papaparse.min.js` (unpkg uses the same npm layout, so it's derived the same way)
+
+
+**3. Another CDN (e.g. cdnjs) — supply `local_path` positionally**
+```django
+{% dependency_script "https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" "my_app/node_modules/papaparse/papaparse.min.js" %}
+```
+- **Online:** The cdnjs URL
+- **Offline:** `/static/my_app/node_modules/papaparse/papaparse.min.js` (cdnjs can't be auto-derived, so you provide the local path as the second argument)
+
+
+**4. Another CDN — supply `local_path` as a keyword (same result, more explicit)**
+```django
+{% dependency_script "https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js" local_path="my_app/node_modules/papaparse/papaparse.min.js" %}
+```
+- Identical behavior to #3; the keyword form is easier to read at a glance.
+
+**5. jsDelivr/unpkg URL and `local_path` — valid, but `local_path` is ignored**
+```django
+{% dependency_script "https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js" local_path="my_app/node_modules/papaparse/papaparse.min.js" %}
+```
+- **Offline:** `/static/my_app/node_modules/papaparse/papaparse.min.js` — but from auto-derivation, not the `local_path` you passed. For a jsDelivr/unpkg URL the path is always derived, so the `local_path` here is redundant. Only provide `local_path` for CDNs that can't be derived.
+
+:::info
+
+If you would rather not use the `{% dependency_script %}` tag, it can be avoided all together
+by using Django `{% if %}` and `{% else %}` template tags
+
+:::
+
+## `dependency_link` Tag
+
+The `{% dependency_link %}` tag is provided to be used in place of `<link>` HTML tags and ensures the linked dependency works in both online and offline air-gapped environments.
+
+The `{% dependency_link %}` tag has the following structure:
+
+```django
+{% dependency_link <cdn_url> <local_path> %}
+```
+
+1. `cdn_url` - The url to the resource. The same URL used in the `<link>` HTML tag
+
+2. `local_path (optional)` - The local path to the static resource.
+
+The `local_path` argument is optional, and is only necessary when the path to the static resource cannot be automatically derived.
+The path to the resource can be automatically derived when the CDN url used is either a **jsDelivr** or **unpkg** url. Otherwise,
+the `local_path` argument is required, and the tag will fallback to the given path.
+
+The following examples show different ways that the `{% dependency_link %}` tag can be used to
+replace the `<link href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet">` HTML tag
+
+First, we must import tethys to use the `{% dependency_link %}` tag:
+
+```django
+{% load tethys %}
+```
+
+**1. jsDelivr URL — local path derived automatically (the recommended form)**
+```django
+{% dependency_link "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" %}
+```
+- **Online:** `https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css`
+- **Offline:** `/static/my_app/node_modules/leaflet/dist/leaflet.css` (derived from the URL — no `local_path` needed)
+
+**2. unpkg URL — also derived automatically**
+```django
+{% dependency_link "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" %}
+```
+- **Online:** `https://unpkg.com/leaflet@1.9.4/dist/leaflet.css`
+- **Offline:** `/static/my_app/node_modules/leaflet/dist/leaflet.css` (unpkg uses the same npm layout, so it's derived the same way)
+
+**3. Another CDN (e.g. cdnjs) — supply local_path positionally**
+```django
+{% dependency_link "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" "my_app/node_modules/leaflet/dist/leaflet.css" %}
+```
+- **Online:** The cdnjs URL
+- **Offline:** `/static/my_app/node_modules/leaflet/dist/leaflet.css` (cdnjs can't be auto-derived, so you provide the local path as the second argument)
+
+**4. Another CDN — supply `local_path` as a keyword (same result, more explicit)**
+```django
+{% dependency_link "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" local_path="my_app/node_modules/leaflet/dist/leaflet.css" %}
+```
+- Identical behavior to #3; the keyword form is easier to read at a glance.
+
+**5. jsDelivr/unpkg URL and `local_path` — valid, but `local_path` is ignored**
+```django
+{% dependency_link "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" local_path="my_app/node_modules/leaflet/dist/leaflet.css" %}
+```
+- **Offline:** `/static/my_app/node_modules/leaflet/dist/leaflet.css` — but from auto-derivation, not the `local_path` you passed. For a jsDelivr/unpkg URL the path is always derived, so the `local_path` here is redundant. Only provide `local_path` for CDNs that can't be derived.
+
+:::info
+
+If you would rather not use the `{% dependency_link %}` tag, it can be avoided all together
+by using Django `{% if %}` and `{% else %}` template tags
+
+:::
